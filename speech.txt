@@ -1,0 +1,45 @@
+Hello, my name is Teachbot. It’s nice to meet you.
+I’m a robot meant to teach you robotics. Let me show you what I can do.
+Want to know how I did that? Inside my arm I have a bunch of electronic things called electric motors. Here, take a look.
+Now pay close attention while I move each motor individually. Try to count how many motors I have.
+How many motors did you count?
+Now I’m going to show you something a little different. I’m going to turn off my motors.
+Try pushing my arm.
+You pushed my arm x degrees in the clockwise counterclockwise direction. Let me show you how I know.
+This device is called an encoder. Try pushing my arm again, and I’ll show on the screen, the signal that I feel.
+Every motor in my arm has an encoder. These encoders help me figure out what position my arm is in and how far it’s travelled based on their signal.
+Now let me talk about something really cool. It is called feedback. Try pushing my arm again. Can you notice the difference?
+Before, my motors were turned off, but right now, I’m creating force with my motors to keep my arm in place. What am I using to know when my arm is moving?
+That’s right! I measured my arm positions, and created a force to push my arm back. But that’s only one demonstration of feedback. Let me show you another one.
+I’m going to try to move my arm without my encoders to this target zone shown on the screen in front of you. This is what happens when my arm moves without feedback. Notice what happens.
+As you can see, I missed my target position. This happens because I’m just guessing what my arm’s position is. I will now move my arm while using my encoders. Notice what happens now.
+Oh no, it seems I’ve passed the target, I better turn around.
+As you can see, my arm moves much more accurately when I use position feedback control. I received information from my encoders every once in awhile, and I used that to figure out the difference between my current location and my target. There are other types of feedback control, like velocity feedback control. The important thing to know is that feedback is very important for getting things as accurate as possible, because guessing doesn’t always work
+Your cell phone can store phone numbers by using memory. Similar to that, I can store things into my memory as well. One of these things is position. Try moving my arm again to a new position.
+Are you done moving my arm?
+Using my memory, we started my arm from right here...” *moves arm “and ended right here. Is that correct?
+So far we’ve only used my elbow. But, sometimes we’re going to need to move my finger to points we can’t get to without moving my other joints. Take a look at the screen.
+If I move only my elbow…
+I only reach here.
+But I can reach the point if I move my shoulder too!
+If I do this all at the same time, I’ll get to the point faster too!
+Now before you leave, let me show you one last thing, the last joint we haven’t used. Here are my hands! We’ll use them more in the next session, but for now, good job completing module 1! High two!
+Beginning module 2. 
+Today, we will be learning some more things involving movement. A lot of what we do today will be based on these objects in front of me.
+To begin with, let me try to grab it with my hands.
+Oh, I’ve seemed to make a mistake. Let me try again. Would you please move the cup to the marker.
+The first lesson of the day will be about orientation. As you saw, my hand can’t grab the object as it is. But…
+...if I change the orientation of my hand, I can grip this object. Since I don’t have thumbs like you, I have to get creative with how I pick up things.
+Now let’s try moving this object over to this marker here. Do you think I can move it there directly?
+Yes! That’s correct. I can’t just move it directly to the mark. If I try to move it directly to the mark, this happens.
+Well. Let’s try again. Could you move the object back to the green marker?
+I could lift up the object. Then…
+I can move it to the point, and then lower it.
+This method of moving my arm around used a thing called waypoints.
+Waypoints are like little stops I make on the way to my destination to make sure I get there. It’s like stopping for gas during a road trip.
+Now can you put together a series of waypoints for me to move this object back to its original spot?
+Good!
+The last lesson of the day is about collision avoidance. The goal is to use waypoints to move this object…
+...Through the obstacle course and end on this blue marker. This time, we’re going to limit the number of waypoints you can use, so you’re going to have to find one of the possible paths to reach the destination.
+Good job! Now can you find another path back with a different series of waypoints?
+Great! With that, we’re done for the day.

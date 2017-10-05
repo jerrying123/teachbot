@@ -8,74 +8,52 @@ Uses helpers.py for functions
 @author: Jerry Ng
 """
 from gtts import gTTS
+from init import lines
+from init import response_lines
+from init import response_req, response_popper
+from mutagen.mp3 import MP3
+from time import sleep
 import pyglet
 import helpers
-#from pyglet.window import key
+import serial
+import argparse
+import threading
 
+from time import sleep
+from collections import deque
+#from pyglet.window import key
+import matplotlib.pyplot as plt 
+import matplotlib.animation as animation
 import speech_recognition as sr
 #import os
-
-r = sr.Recognizer()
-
-#voice that will be spoken
-tts= gTTS(text = 'Good morning. My name is Teachbot. How are you?', lang='en')
-tts.save("good.mp3")
-tts= gTTS(text = "I'm a robot meant to teach you robotics. Let me show you \
-           what I can do.", lang = 'en')
-tts.save("letmeshowyou.mp3")
-tts= gTTS(text = "Want to know how I did that? Inside my arm I have a bunch of electronic things called actuators. Here, take a look.", lang='en')
-tts.save("line3.mp3")
+#setup
+r = sr.Recognizer() #voice recog
 #creates a path to the sound files
 pyglet.resource.path = ['/home/jerrying/teachbot']
 pyglet.resource.reindex()
 window = pyglet.window.Window(width = 1000, height = 1000, visible=True) #opens a window
 
 #creates the text for the window
-labels = []
-voices = []
-label1 = pyglet.text.Label('Good morning. My name is Teachbot. How are you?',
-                          font_name = 'Times New Roman',
-                          font_size = 36,
-                          x = window.width//2, y=window.height//2,
-                          width = 750,
-                          anchor_x='center', anchor_y='center',
-                          multiline = True)
+labels = [0 for x in range(0, len(lines)-1)]
+voices = [0 for x in range(0, len(lines)-1)]
+response_labels = [0 for x in range(0, len(response_req)-1)]
+response_voices = [0 for x in range(0, len(response_req)-1)]
 
-label2 = pyglet.text.Label("I'm a robot meant to teach you robotics. Let me show you what I can do.",
-                          font_name = 'Times New Roman',
-                          font_size = 36,
-                          x = window.width//2, y=window.height//2,
-                          width = 750,
-                          anchor_x='center', anchor_y='center',
-                          multiline = True)
+#label1 = helpers.pyglabelmaker("Good morning. My name is Teachbot. How are you?")
+#label2 = helpers.pyglabelmaker("I'm a robot meant to teach you robotics. Let me show you what I can do.")
+#label3 = helpers.pyglabelmaker("Want to know how I did that? Inside my arm I have a bunch of electronic things called actuators. Here, take a look.")
 
-label3 = pyglet.text.Label("Want to know how I did that? Inside my arm I have a bunch of electronic things called actuators. Here, take a look.",
-                          font_name = 'Times New Roman',
-                          font_size = 36,
-                          x = window.width//2, y=window.height//2,
-                          width = 750,
-                          anchor_x='center', anchor_y='center',
-                          multiline = True)
-labels.append(label1) #lists subtitles
-labels.append(label2)
-labels.append(label3)
+#labels.append(label1) #lists subtitles
+#labels.append(label2)
+#labels.append(label3)
 
-voice1 = pyglet.resource.media('good.mp3', streaming=False) #decoded in memory before used
-voice2 = pyglet.resource.media('letmeshowyou.mp3', streaming=False)
-voice3 = pyglet.resource.media('line3.mp3', streaming=False)
+for x in range(0,len(lines)-1):
+    voices[x] = pyglet.resource.media('sounds/line' + str(x) + '.mp3', streaming = False)
+    labels[x] = helpers.pyglabelmaker(unicode(lines[x], errors ='replace'))
 
-voices.append(voice1) #lists mp3 files
-voices.append(voice2)
-voices.append(voice3)
+#for x in range(0,len(response_req)-1):
+ #   response_labels[x] = helpers.pyglabelmaker(unicode(response_lines[x], errors ='replace'))
 
-#@window.event   #sets up window event to change text
-#def on_draw():
-helpers.counter = 0
-response_req = [0]
-#def counterincrement():
-   # global counter
-   # counter = counter + 1
-    
 def pyglabelmaker(string):
     textlabel = pyglet.text.Label(string,
                           font_name = 'Times New Roman',
@@ -86,29 +64,184 @@ def pyglabelmaker(string):
                           multiline = True)
     return textlabel;
 
+        
+# main() function
+class myThread1 (threading.Thread):
+    global data
+    def __init__(self, threadID, name, counter):
+      threading.Thread.__init__(self)
+      self.threadID = threadID
+      self.name = name
+      self.counter = counter
+    def run(self):
+        
+          # create parser
+          parser = argparse.ArgumentParser(description="LDR serial")
+          # add expected arguments
+          parser.add_argument('--port', dest='/dev/ttyACM0', required=False)
+          
+          # parse args
+          args = parser.parse_args()
+          
+          #strPort = '/dev/tty.usbserial-A7006Yqh'
+          strPort = '/dev/ttyACM0'
+        
+          print('reading from serial port %s...' % strPort)
+        
+          # plot parameters
+          analogPlot = AnalogPlot(strPort, 100)
+        
+          print('plotting data...')
+        
+          # set up animation
+          fig = plt.figure()
+          ax = plt.axes(xlim=(0, 100), ylim=(0, 360))
+          a0, = ax.plot([], [])
+          #a1, = ax.plot([], [])
+          anim = animation.FuncAnimation(fig, analogPlot.update, 
+                                         fargs=(a0,), #,a1), 
+                                         interval=1)
 
-@window.event #sets up window event to close window
+          # show plot
+          plt.show()
+          
+          # clean up
+          analogPlot.close()
+        
+          print('exiting.')
+      
+class myThread2 (threading.Thread):
+    def __init__(self, threadID, name, counter):
+      threading.Thread.__init__(self)
+      self.threadID = threadID
+      self.name = name
+      self.counter = counter
+    def run(self):
+        pyglet.app.run()
+
+# plot class
+class AnalogPlot:
+  # constr
+  def __init__(self, strPort, maxLen):
+      # open serial port
+      self.ser = serial.Serial(strPort, 38400)
+
+      self.ax = deque([0.0]*maxLen)
+      #self.ay = deque([0.0]*maxLen)
+      self.maxLen = maxLen
+
+  # add to buffer
+  def addToBuf(self, buf, val):
+      if len(buf) < self.maxLen:
+          buf.append(val)
+      else:
+          buf.pop()
+          buf.appendleft(val)
+
+  # add data
+  def add(self, data):
+      assert(len(data) == 1)
+      self.addToBuf(self.ax, data[0])
+      #self.addToBuf(self.ay, data[1])
+
+  # update plot
+  def update(self, frameNum, a0):#, a1):
+      try:
+          line = self.ser.readline()
+          global strline
+          strline = str(line)
+          data = [float(val) for val in line.split()]
+          # print data
+          if(len(data) == 1):
+              self.add(data)
+              a0.set_data(range(self.maxLen), self.ax)
+              #a1.set_data(range(self.maxLen), self.ay)
+      except KeyboardInterrupt:
+          print('exiting')
+      
+      return a0, 
+
+  # clean up
+  def close(self):
+      # close serial
+      self.ser.flush()
+      self.ser.close()    
+   
+@window.event #sets up window event for proceeding through code
 def on_key_press(symbol, modifiers):
+    
     window.clear()
     if symbol == pyglet.window.key.ENTER: #press enter to go through each subtitle and mp3
-        if(helpers.counter == 3):
+        if(helpers.counter == len(lines)-1):
             window.close()            
         else:
             window.clear()
             labels[helpers.counter].draw()
             voices[helpers.counter].play()
-            helpers.counterincrement()
-           # if(counter == response_req[0]): 
-              #  del response_req[0]
-               # with sr.Microphone() as source:
-               #     print("Say something!")
-               #     audio = r.listen(source) #listens for first phrase
+            print(str(response_req[0]) + "," + str(helpers.counter))
+            if(str(helpers.counter) == str(response_req[0])):
+                if(helpers.counter == 7):
+                    tts= gTTS(text = 'hello ' + strline, lang='en')
+                    tts.save('somestupidshit.mp3')
+                else:
+                    with sr.Microphone() as source:
+                        print("Say something!")
+                        audio = r.listen(source) #listens for first phrase
+                        
+                        #putting together the response
+                        response = response_labels[2*helpers.counter] + audio + response_labels[(2*helpers.counter)+1] 
+                        tts = gTTS(text = unicode(response, errors ='ignore'), lang='en')
+                        tts.save('sounds/response' + str(helpers.counter) + '.mp3')
+                        response_voices[response_req[0]] = pyglet.resource.media('sounds/response' \
+                                       + str(counter) + '.mp3')
+                        response_labels[response_req[0]] = help.pyglabelmaker(
+                                unicode(response),errors = 'replace')
+                        
+                        audio = MP3('sounds/response' + str(helpers.counter) + '.mp3') #finding length of response
+                        
+                        #executing the response
+                        response_labels[response_req[0]].draw()
+                        response_voices[response_req[0]].play()
+                        sleep(audio.info.length)
+                response_popper()               
 
                     
                # try:
-               #     r.recognize(audio)
+               #     print(r.recognize(audio))"""
+               
+    if symbol == pyglet.window.key.ESCAPE:
+        window.close()
     
-pyglet.app.run() #puts text onto window
+    helpers.counterincrement()
+
+#voice1 = pyglet.resource.media('sound/line0.mp3', streaming=False) #decoded in memory before used
+#voice2 = pyglet.resource.media('sound/line1.mp3', streaming=False)
+#voice3 = pyglet.resource.media('sound/line2.mp3', streaming=False)
+
+#voices.append(voice1) #lists mp3 files
+#voices.append(voice2)
+#voices.append(voice3)
+
+#@window.event   #sets up window event to change text
+#def on_draw():
+
+global counter
+counter = 0
+#def counterincrement():
+   # global counter
+   # counter = counter + 1
+
+
+
+thread1 = myThread1(1, "Thread-1", 1)
+thread2 = myThread2(2, "Thread-2", 2)
+
+#start threads
+thread1.start()
+thread2.start()
+
+
+
 
 
 
