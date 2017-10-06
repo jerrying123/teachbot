@@ -36,8 +36,8 @@ window = pyglet.window.Window(width = 1000, height = 1000, visible=True) #opens 
 #creates the text for the window
 labels = [0 for x in range(0, len(lines)-1)]
 voices = [0 for x in range(0, len(lines)-1)]
-response_labels = [0 for x in range(0, len(response_req)-1)]
-response_voices = [0 for x in range(0, len(response_req)-1)]
+response_labels = [0 for x in range(0, 4)]
+response_voices = [0 for x in range(0, 4)]
 
 #label1 = helpers.pyglabelmaker("Good morning. My name is Teachbot. How are you?")
 #label2 = helpers.pyglabelmaker("I'm a robot meant to teach you robotics. Let me show you what I can do.")
@@ -51,8 +51,9 @@ for x in range(0,len(lines)-1):
     voices[x] = pyglet.resource.media('sounds/line' + str(x) + '.mp3', streaming = False)
     labels[x] = helpers.pyglabelmaker(unicode(lines[x], errors ='replace'))
 
-#for x in range(0,len(response_req)-1):
- #   response_labels[x] = helpers.pyglabelmaker(unicode(response_lines[x], errors ='replace'))
+for x in range(0,4):
+    response_labels[x] = helpers.pyglabelmaker(unicode(response_lines[x], errors ='replace'))
+
 
 def pyglabelmaker(string):
     textlabel = pyglet.text.Label(string,
@@ -148,8 +149,7 @@ class AnalogPlot:
   def update(self, frameNum, a0):#, a1):
       try:
           line = self.ser.readline()
-          global strline
-          strline = str(line)
+          global data
           data = [float(val) for val in line.split()]
           # print data
           if(len(data) == 1):
@@ -169,50 +169,70 @@ class AnalogPlot:
    
 @window.event #sets up window event for proceeding through code
 def on_key_press(symbol, modifiers):
-    
     window.clear()
     if symbol == pyglet.window.key.ENTER: #press enter to go through each subtitle and mp3
         if(helpers.counter == len(lines)-1):
-            window.close()            
-        else:
-            window.clear()
+            window.close() 
+            
+        elif(helpers.counter == 7):
+            pos2 = data[0]
+            global pos1
+            diffangle = pos2 - pos1
+            if(diffangle>0):
+                net_response = response_lines[2] + " " + str(diffangle)  \
+                      + " " + response_lines[4]
+                labels[helpers.counter]= helpers.pyglabelmaker(unicode(net_response, errors = 'ignore'))
+                tts = gTTS(text=unicode(net_response, errors = 'ignore'), lang='en')
+                tts.save('sounds/line' + str(helpers.counter) + '.mp3')
+                voices[helpers.counter] = pyglet.resource.media('sounds/line' + str(helpers.counter) + '.mp3')
+            elif(diffangle<=0):
+                net_response = response_lines[2] + " " + str(diffangle)  \
+                      + " " + response_lines[3]
+                labels[helpers.counter]= helpers.pyglabelmaker(net_response)
+                tts = gTTS(text=unicode(net_response, errors = 'ignore'), lang='en')
+                tts.save('sounds/line' + str(helpers.counter) + '.mp3')
+                voices[helpers.counter] = pyglet.resource.media('sounds/line' + str(helpers.counter) + '.mp3')
             labels[helpers.counter].draw()
             voices[helpers.counter].play()
+        
+        else:
+            labels[helpers.counter].draw()
+            voices[helpers.counter].play()
+            audio = MP3('sounds/line' + str(helpers.counter) + '.mp3')
             print(str(response_req[0]) + "," + str(helpers.counter))
-            if(str(helpers.counter) == str(response_req[0])):
-                if(helpers.counter == 7):
-                    tts= gTTS(text = 'hello ' + strline, lang='en')
-                    tts.save('somestupidshit.mp3')
-                else:
+            """if(str(helpers.counter) == str(response_req[0])):
+                if(helpers.counter == 0):
                     with sr.Microphone() as source:
                         print("Say something!")
-                        audio = r.listen(source) #listens for first phrase
-                        
+                        phrase = r.listen(source) #listens for first phrase
+                        txtphrase = r.recognize_google(phrase)
                         #putting together the response
-                        response = response_labels[2*helpers.counter] + audio + response_labels[(2*helpers.counter)+1] 
+                        response = response_lines[0] + " " + str(txtphrase)+ response_lines[1] 
                         tts = gTTS(text = unicode(response, errors ='ignore'), lang='en')
                         tts.save('sounds/response' + str(helpers.counter) + '.mp3')
-                        response_voices[response_req[0]] = pyglet.resource.media('sounds/response' \
-                                       + str(counter) + '.mp3')
-                        response_labels[response_req[0]] = help.pyglabelmaker(
-                                unicode(response),errors = 'replace')
+                        response_voices[0] = pyglet.resource.media(
+                                'sounds/response' + str(helpers.counter) + '.mp3')
+                        response_labels[0] = helpers.pyglabelmaker(
+                                unicode((response),errors = 'replace'))
                         
                         audio = MP3('sounds/response' + str(helpers.counter) + '.mp3') #finding length of response
                         
                         #executing the response
-                        response_labels[response_req[0]].draw()
-                        response_voices[response_req[0]].play()
-                        sleep(audio.info.length)
-                response_popper()               
+                        response_labels[0].draw()
+                        response_voices[0].play()
+                        sleep(audio.info.length)"""
+            if(helpers.counter == 0):
+                    pos1 = data[0]             
+                    
+            response_popper()               
 
                     
                # try:
                #     print(r.recognize(audio))"""
                
-    if symbol == pyglet.window.key.ESCAPE:
-        window.close()
-    
-    helpers.counterincrement()
+        if symbol == pyglet.window.key.ESCAPE:
+                   window.close()
+        helpers.counterincrement()
 
 #voice1 = pyglet.resource.media('sound/line0.mp3', streaming=False) #decoded in memory before used
 #voice2 = pyglet.resource.media('sound/line1.mp3', streaming=False)

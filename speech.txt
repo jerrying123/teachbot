@@ -1,11 +1,11 @@
-Hello, my name is Teachbot. It’s nice to meet you.
+Hello, my name is Teachbot. It’s nice to meet you. What is your name?
 I’m a robot meant to teach you robotics. Let me show you what I can do.
 Want to know how I did that? Inside my arm I have a bunch of electronic things called electric motors. Here, take a look.
 Now pay close attention while I move each motor individually. Try to count how many motors I have.
 How many motors did you count?
 Now I’m going to show you something a little different. I’m going to turn off my motors.
 Try pushing my arm.
-You pushed my arm x degrees in the clockwise counterclockwise direction. Let me show you how I know.
+empty
 This device is called an encoder. Try pushing my arm again, and I’ll show on the screen, the signal that I feel.
 Every motor in my arm has an encoder. These encoders help me figure out what position my arm is in and how far it’s travelled based on their signal.
 Now let me talk about something really cool. It is called feedback. Try pushing my arm again. Can you notice the difference?
@@ -17,7 +17,8 @@ Oh no, it seems I’ve passed the target, I better turn around.
 As you can see, my arm moves much more accurately when I use position feedback control. I received information from my encoders every once in awhile, and I used that to figure out the difference between my current location and my target. There are other types of feedback control, like velocity feedback control. The important thing to know is that feedback is very important for getting things as accurate as possible, because guessing doesn’t always work
 Your cell phone can store phone numbers by using memory. Similar to that, I can store things into my memory as well. One of these things is position. Try moving my arm again to a new position.
 Are you done moving my arm?
-Using my memory, we started my arm from right here...” *moves arm “and ended right here. Is that correct?
+Using my memory, we started my arm from right here... 
+and ended right here. Is that correct?
 So far we’ve only used my elbow. But, sometimes we’re going to need to move my finger to points we can’t get to without moving my other joints. Take a look at the screen.
 If I move only my elbow…
 I only reach here.
